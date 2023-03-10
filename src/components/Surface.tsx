@@ -238,21 +238,16 @@ const Surface = forwardRef<View, Props>(
       ...restStyle
     } = (StyleSheet.flatten(style) || {}) as ViewStyle;
 
-    const [filteredStyle, borderRadiusStyle, marginStyle] = splitStyles(
-      restStyle,
-      (style) => style.startsWith('border') && style.endsWith('Radius'),
-      (style) => style.startsWith('margin')
+    const [filteredStyle, marginStyle] = splitStyles(restStyle, (style) =>
+      style.startsWith('margin')
     );
-
-    const sharedStyles = {
-      flex: height ? 1 : undefined,
-    };
 
     const innerLayerViewStyles = [
       filteredStyle,
-      sharedStyles,
-      borderRadiusStyle,
-      { backgroundColor: backgroundColorStyle || backgroundColor },
+      {
+        flex: height ? 1 : undefined,
+        backgroundColor: backgroundColorStyle || backgroundColor,
+      },
     ];
 
     const outerLayerViewStyles = {
@@ -303,16 +298,10 @@ const Surface = forwardRef<View, Props>(
           testID={`${testID}-outer-layer`}
         >
           <Animated.View
-            style={[getStyleForAnimatedShadowLayer(1), sharedStyles]}
-            testID={`${testID}-middle-layer`}
+            style={[getStyleForAnimatedShadowLayer(1), innerLayerViewStyles]}
+            testID={testID}
           >
-            <Animated.View
-              {...props}
-              testID={testID}
-              style={innerLayerViewStyles}
-            >
-              {children}
-            </Animated.View>
+            {children}
           </Animated.View>
         </Animated.View>
       );
@@ -339,16 +328,11 @@ const Surface = forwardRef<View, Props>(
         testID={`${testID}-outer-layer`}
       >
         <Animated.View
-          style={[getStyleForShadowLayer(1), sharedStyles]}
-          testID={`${testID}-middle-layer`}
+          {...props}
+          style={[getStyleForShadowLayer(1), innerLayerViewStyles]}
+          testID={testID}
         >
-          <Animated.View
-            {...props}
-            testID={testID}
-            style={innerLayerViewStyles}
-          >
-            {children}
-          </Animated.View>
+          {children}
         </Animated.View>
       </Animated.View>
     );
